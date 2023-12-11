@@ -1,0 +1,100 @@
+
+
+BANK SQL QUERY FINAL
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+1)Display the Female customer who are from 'karnataka'
+
+SELECT CUST_NAME 
+FROM BANK_CUSTOMER
+WHERE GENDER = 'F' AND STATE = 'KARNATAKA';
+
+---------------------------------------------------------------------------------------------------------------
+
+2)Display the customer who have the highest balance across all account types				
+
+SELECT CUST_NAME
+FROM BANK_CUSTOMER INNER JOIN BANK_ACC ON BANK_CUSTOMER.CUST_BKEY = BANK_ACC.CUST_BKEY
+WHERE BALANCE =
+(SELECT MAX(BALANCE) FROM BANK_ACC);
+
+---------------------------------------------------------------------------------------------------------------
+
+3)Display the State wise no of accounts opened in the previous year			
+
+SELECT STATE, COUNT(A_NO) AS TOT_ACC FROM BANK_CUSTOMER INNER JOIN BANK_ACC ON BANK_CUSTOMER.CUST_BKEY = BANK_ACC.CUST_BKEY
+WHERE TO_CHAR(ACT_OPEN_DATE,'YYYY')='2022'
+GROUP BY STATE
+ORDER BY COUNT(A_NO) DESC
+
+---------------------------------------------------------------------------------------------------------------
+
+4)Display customer name and transaction type wise transaction amounts
+
+				
+SELECT CUST_NAME, TXN_TYPE, FCY_AMT, LCY_AMT
+FROM BANK_CUSTOMER INNER JOIN BANK_ACC ON BANK_CUSTOMER.CUST_BKEY = BANK_ACC.CUST_BKEY
+                INNER JOIN BANK_TRANSACTION ON BANK_ACC.A_NO = BANK_TRANSACTION.A_NO
+
+---------------------------------------------------------------------------------------------------------------
+
+5)Display city wise no of male and female customers		
+
+SELECT CITY, COUNT(CASE WHEN GENDER = 'F' THEN 1  END) AS FEMALE_COUNT,
+COUNT(CASE WHEN GENDER = 'M' THEN 1  END) AS MALE_COUNT
+FROM BANK_CUSTOMER
+GROUP BY CITY
+
+--------------------------------------------------------------------------------------------------------------
+
+6)Display the cities that have more number of customers than the city BTM
+
+SELECT CITY FROM
+(select city,COUNT(CUST_BKEY)  FROM BANK_CUSTOMER GROUP BY CITY HAVING COUNT(CUST_BKEY) >  
+
+(SELECT COUNT(CUST_BKEY) FROM BANK_CUSTOMER WHERE CITY = 'BTM'))T1
+
+------------------------------------------------------------------------------------------------------------
+
+
+7)Display the customer name who have the highest balance in individual account types				
+
+SELECT CUST_NAME FROM
+(SELECT CUST_NAME, BALANCE, DENSE_RANK() OVER(ORDER BY BALANCE DESC) RNK
+FROM BANK_CUSTOMER INNER JOIN BANK_ACC ON BANK_CUSTOMER.CUST_BKEY = BANK_ACC.CUST_BKEY
+WHERE ACT_TYPE = 'SAVINGS'
+
+UNION
+
+SELECT CUST_NAME, BALANCE, DENSE_RANK() OVER(ORDER BY BALANCE DESC) RNK
+FROM BANK_CUSTOMER INNER JOIN BANK_ACC ON BANK_CUSTOMER.CUST_BKEY = BANK_ACC.CUST_BKEY
+WHERE ACT_TYPE = 'CURRENT') T
+WHERE RNK=1
+
+------------------------------------------------------------------------------------------------------------
+
+8)Display the which is the  common act_type hold by 'MONI' and 'ANANYA'				
+
+SELECT ACT_TYPE FROM BANK_CUSTOMER INNER JOIN BANK_ACC ON BANK_CUSTOMER.CUST_BKEY = BANK_ACC.CUST_BKEY
+WHERE CUST_NAME = 'MONI' AND CUST_NAME = 'ANANYA'
+--------------------------------------------------------------------------------------------------------------
+
+
+9)Write a query to display all the customers and the number of accounts they hold				
+
+SELECT CUST_NAME, COUNT(A_NO) FROM BANK_CUSTOMER INNER JOIN BANK_ACC ON BANK_CUSTOMER.CUST_BKEY = BANK_ACC.CUST_BKEY
+GROUP BY CUST_NAME
+
+------------------------------------------------------------------------------------------------------------
+
+ 
+10)Display customer who made a transaction in current year march month	
+
+SELECT CUST_NAME FROM BANK_CUSTOMER INNER JOIN BANK_ACC ON BANK_CUSTOMER.CUST_BKEY = BANK_ACC.CUST_BKEY
+                                    INNER JOIN BANK_TRANSACTION ON BANK_ACC.A_NO = BANK_TRANSACTION.A_NO
+WHERE TO_CHAR(TXN_DATE,'YY')='22' AND  TO_CHAR(TXN_DATE,'MM')='03'
+
+---------------------------------------------------------------------------------------------------------------
+			
+		
